@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 DEPLOYMENT = False  # This variable is to understand whether you are deploying on the actual hardware
 
@@ -27,6 +28,11 @@ class IntelligentOffice:
     BUZZER_PIN = 36 # Active buzzer pin
 
     def __init__(self):
+        self.light_bulb = None
+        self.buzzer = None
+        self.gas_sensor = None
+        self.light_sensor = None
+        self.servo_motor = None
         GPIO.setmode(GPIO.BOARD)
         GPIO.setwarnings(False)
         GPIO.setup(self.INFRARED_PIN1, GPIO.IN)
@@ -53,21 +59,57 @@ class IntelligentOffice:
         self.light_on = False
         self.buzzer_on = False
 
+        def __init__(self, servo_motor):
+            self.servo_motor = servo_motor
+
+            def __init__(self, light_sensor, light_bulb):
+                self.light_sensor = light_sensor  # Light sensor object
+                self.light_bulb = light_bulb  # Light bulb object
+
+                def __init__(self, gas_sensor, buzzer):
+                    self.gas_sensor = gas_sensor  # Gas sensor object
+                    self.buzzer = buzzer  # Buzzer object
+
     def check_quadrant_occupancy(self, pin: int) -> bool:
-        # To be implemented
-        pass
+                GPIO.setup(pin, GPIO.IN)
+                detection = GPIO.input(pin)
+                if detection == GPIO.HIGH:
+                    print(f"Worker detected in quadrant connected to pin {pin}.")
+                    return True
+                else:
+                    print(f"No worker detected in quadrant connected to pin {pin}.")
+                    return False
+                    pass
+
 
     def manage_blinds_based_on_time(self) -> None:
-        # To be implemented
+        current_time = datetime.datetime.now()
+        current_hour = current_time.hour
+        if 7 <= current_hour < 19:
+            self.servo_motor.open()
+            print("Blinds are opened (Daytime).")
+        else:
+            self.servo_motor.close()
+            print("Blinds are closed (Nighttime).")
         pass
 
     def manage_light_level(self) -> None:
-        # To be implemented
+                light_level = self.light_sensor.read()
+                if light_level < 50:
+                    self.light_bulb.turn_on()
+                    print("Light is turned on (low ambient light).")
+                else:
+                    self.light_bulb.turn_off()  # Turn off the light bulb
+                    print("Light is turned off (sufficient ambient light).")
         pass
 
-
     def monitor_air_quality(self) -> None:
-        # To be implemented
+                air_quality = self.gas_sensor.read()
+                if air_quality > 300:
+                    self.buzzer.trigger()
+                    print("Hazardous air quality detected! Buzzer activated.")
+                else:
+                    print("Air quality is safe.")
         pass
 
     def change_servo_angle(self, duty_cycle):
